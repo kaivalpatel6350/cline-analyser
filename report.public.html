@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cline Builder Profile — Local Report</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #0b0d12;
+    --bg2: #14171f;
+    --card: #1a1e29;
+    --text: #e8eaf0;
+    --muted: #8a93a6;
+    --accent: #7c9cf2;
+    --accent2: #f29c7c;
+    --green: #7cf2a0;
+    --yellow: #f2d97c;
+    --red: #f27c7c;
+    --border: #2a2f3d;
+  }
+  html, body { background: var(--bg); color: var(--text); }
+  body {
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0; padding: 0;
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  h1, h2, h3, h4 { color: #fff; }
+  h1 { font-size: 28px; margin: 0 0 8px; }
+  h2 { font-size: 20px; margin: 32px 0 12px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  h3 { font-size: 16px; margin: 16px 0 6px; }
+  .subtitle { color: var(--muted); margin: 0 0 24px; }
+  .grid { display: grid; gap: 16px; }
+  .grid-2 { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .grid-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px;
+  }
+  .card h3 { margin-top: 0; }
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat .value { font-size: 22px; font-weight: 600; color: #fff; }
+  .stat .sub { color: var(--muted); font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  th { color: var(--muted); font-weight: 500; }
+  tbody tr:hover { background: rgba(124, 156, 242, 0.05); }
+  code, pre { background: #0e1118; color: #d8e0ee; border-radius: 4px; }
+  code { padding: 1px 4px; }
+  pre { padding: 12px; overflow-x: auto; font-size: 12px; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; background: #2a334a; color: #b8c4e0; margin-right: 4px; }
+  .pill.warn { background: #3a3120; color: var(--yellow); }
+  .pill.bad { background: #3a2020; color: var(--red); }
+  .pill.good { background: #1f3a25; color: var(--green); }
+  .footer { color: var(--muted); margin-top: 48px; font-size: 12px; text-align: center; }
+  .markdown { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px 22px; }
+  .markdown h2, .markdown h3, .markdown h4 { border: none; padding: 0; margin-top: 14px; }
+  .markdown ul { padding-left: 22px; }
+  canvas { max-width: 100%; }
+  #sankey { width: 100%; height: 480px; }
+  .sankey-node rect { stroke: #000; stroke-width: 0; }
+  .sankey-link { fill: none; stroke-opacity: 0.35; mix-blend-mode: lighten; }
+  .sankey-label { fill: #d8e0ee; font-size: 11px; }
+  details { background: #0e1118; border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; margin: 8px 0; }
+  details summary { cursor: pointer; color: var(--muted); }
+
+  /* ===== Hero banner (public-only) ===== */
+  .hero-banner {
+    background: linear-gradient(135deg, #1c2440 0%, #2a1f3d 100%);
+    border: 1px solid var(--border); border-radius: 14px;
+    padding: 28px 32px; margin: 0 0 24px;
+    display: flex; flex-wrap: wrap; gap: 20px; align-items: center;
+  }
+  .hero-banner .who { flex: 1 1 320px; }
+  .hero-banner .who h2 {
+    margin: 0 0 6px; font-size: 24px; color: #fff; border: none; padding: 0;
+  }
+  .hero-banner .who .role { color: #b8c4e0; font-size: 15px; line-height: 1.55; margin: 0 0 12px; }
+  .hero-banner .who .tags { margin-top: 8px; }
+  .hero-banner .links {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .hero-banner .links a {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #0e1118; color: #e8eaf0; border: 1px solid var(--border);
+    padding: 8px 14px; border-radius: 8px;
+    text-decoration: none; font-size: 13px; font-weight: 500;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .hero-banner .links a:hover { background: #1a2236; border-color: var(--accent); }
+  .hero-banner .links a.primary { background: #1f4ad8; border-color: #1f4ad8; }
+  .hero-banner .links a.primary:hover { background: #2c5ce8; }
+
+  /* ===== Reach out section ===== */
+  .reach-out {
+    background: linear-gradient(135deg, #14283d 0%, #1c1f3d 100%);
+    border: 1px solid #2a3a5a; border-radius: 14px;
+    padding: 28px 32px; margin: 40px 0 0;
+  }
+  .reach-out h2 {
+    border: none; padding: 0; margin: 0 0 8px; font-size: 22px; color: #fff;
+  }
+  .reach-out p { color: #b8c4e0; margin: 0 0 14px; }
+  .reach-out .cta-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px; margin-top: 14px;
+  }
+  .reach-out .cta {
+    background: rgba(0,0,0,0.25); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .reach-out .cta strong { color: #fff; display: block; margin-bottom: 4px; }
+  .reach-out .cta span { color: var(--muted); font-size: 13px; }
+  .reach-out .cta a {
+    display: inline-block; margin-top: 8px;
+    color: var(--accent); text-decoration: none; font-weight: 500;
+  }
+  .reach-out .cta a:hover { text-decoration: underline; }
+</style>
+
+</head>
+<body>
+  <div class="container">
+    <div class="hero-banner"><div class="who"><h2>Kaival P.</h2><p class="role">Senior engineer building AI-native products. I instrument how I work with coding agents and keep tightening the loop.</p><div class="tags"><span class="pill">AI-native eng</span> <span class="pill">TypeScript</span> <span class="pill">Python</span> <span class="pill">Convex</span> <span class="pill">Cline</span> <span class="pill">Azure OpenAI</span> <span class="pill">Open to roles</span></div></div><div class="links"><a class="primary" href="https://www.linkedin.com/in/kaival-p-46bb1374/" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 2h-17A1.5 1.5 0 0 0 2 3.5v17A1.5 1.5 0 0 0 3.5 22h17a1.5 1.5 0 0 0 1.5-1.5v-17A1.5 1.5 0 0 0 20.5 2zM8 19H5V8h3v11zM6.5 6.7a1.7 1.7 0 1 1 0-3.4 1.7 1.7 0 0 1 0 3.4zM19 19h-3v-5.6c0-1.3-.5-2.1-1.6-2.1-1.2 0-1.9.8-1.9 2.1V19h-3V8h2.9v1.3c.6-1 1.6-1.6 3-1.6 2.2 0 3.6 1.4 3.6 4V19z"/></svg>LinkedIn</a><a href="#reach-out">Hire / partner</a><a href="#methodology">How this was built</a></div></div>
+    <h1>How I Build With AI</h1>
+    <p class="subtitle">A reverse-engineered profile of how I think, write, and steer an AI coding agent —
+      built from <strong id="total_sessions">605</strong> real Cline sessions
+      &middot; <strong id="total_msgs">4976</strong> user messages
+      &middot; <span id="date_range">2025-01-30  -  2026-06-05</span></p>
+
+
+    <!-- ============ HERO ============ -->
+    <div class="grid grid-4">
+      <div class="card stat">
+        <span class="label">Archetype</span>
+        <span class="value" id="hero_archetype">The Debugger</span>
+        <span class="sub" id="hero_archetype_reason">Heavy fix/edit pattern: 5,956 replace_in_file + 4,821 read_file calls, 19,248 total tool calls, and frequent error-focused prompts/crashouts.</span>
+      </div>
+      <div class="card stat">
+        <span class="label">Primary model</span>
+        <span class="value" id="hero_model">claude-sonnet-4-5-20250929:1m</span>
+        <span class="sub">Plan-rate <strong id="hero_plan">34.0</strong>%</span>
+      </div>
+      <div class="card stat">
+        <span class="label">Peak hour (local)</span>
+        <span class="value" id="hero_peak_hour">22:00</span>
+        <span class="sub">Peak day: <strong id="hero_peak_day">Mon</strong></span>
+      </div>
+      <div class="card stat">
+        <span class="label">Total active</span>
+        <span class="value" id="hero_active">2882.45 h</span>
+        <span class="sub" id="hero_tools">19248 tool calls</span>
+      </div>
+    </div>
+
+    <!-- ============ TIMING ============ -->
+    <h2>Timing</h2>
+    <div class="grid grid-2">
+      <div class="card"><h3>Hour of day (local)</h3><canvas id="hourChart" height="180"></canvas></div>
+      <div class="card"><h3>Day of week (local)</h3><canvas id="dowChart" height="180"></canvas></div>
+    </div>
+
+    <!-- ============ MODELS & TOOLS ============ -->
+    <h2>Models &amp; tools</h2>
+    <div class="grid grid-2">
+      <div class="card"><h3>Model usage (sessions)</h3><canvas id="modelChart" height="200"></canvas></div>
+      <div class="card"><h3>Tool calls</h3><canvas id="toolChart" height="200"></canvas></div>
+    </div>
+
+    <!-- ============ COGNITIVE MODES (LLM) ============ -->
+    <h2>Cognitive modes</h2>
+    <div class="grid grid-2">
+      <div class="card"><h3>Overall mode mix</h3><canvas id="modeChart" height="220"></canvas></div>
+      <div class="card"><h3>By message ordinal</h3><canvas id="modeOrdChart" height="220"></canvas></div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <h3>Mode-to-mode flow (Sankey)</h3>
+      <div id="sankey"></div>
+    </div>
+
+    <!-- ============ COGNITION FINGERPRINT ============ -->
+    <h2>Prompt-style fingerprint</h2>
+    <div class="grid grid-3">
+      <div class="card stat"><span class="label">Avg words / msg</span><span class="value" id="cog_avg_words">__</span></div>
+      <div class="card stat"><span class="label">CAPS runs / 100 msgs</span><span class="value" id="cog_caps">__</span></div>
+      <div class="card stat"><span class="label">Bangs / msg</span><span class="value" id="cog_bangs">__</span></div>
+      <div class="card stat"><span class="label">Self-correction %</span><span class="value" id="cog_sc">__</span></div>
+      <div class="card stat"><span class="label">Multiline %</span><span class="value" id="cog_multi">__</span></div>
+      <div class="card stat"><span class="label">Inline-code use %</span><span class="value" id="cog_code">__</span></div>
+    </div>
+    <div class="grid grid-2" style="margin-top:16px;">
+      <div class="card"><h3>Top opening verbs</h3><canvas id="openingsChart" height="200"></canvas></div>
+      <div class="card"><h3>Top typo / shortcut signals</h3><canvas id="typosChart" height="200"></canvas></div>
+    </div>
+
+    <h3>Style evolution (per month)</h3>
+    <div class="card"><canvas id="monthlyChart" height="220"></canvas></div>
+
+    <!-- ============ DECISION FRAMES ============ -->
+    <h2>Decision frames</h2>
+    <div class="grid grid-2">
+      <div class="card"><h3>Frame rates (% of messages)</h3><canvas id="framesChart" height="200"></canvas></div>
+      <div class="card"><h3>Specificity ladder (by ordinal)</h3><canvas id="ladderChart" height="200"></canvas></div>
+    </div>
+
+    <!-- ============ TRUST PATTERNS ============ -->
+    <h2>Trust &amp; interrupt patterns</h2>
+    <div class="grid grid-3">
+      <div class="card stat"><span class="label">Median tool-depth when you interrupt</span><span class="value" id="trust_p50">__</span><span class="sub">p90: <strong id="trust_p90">__</strong></span></div>
+      <div class="card stat"><span class="label">Mean asst chars before follow-up</span><span class="value" id="trust_chars">__</span></div>
+      <div class="card stat"><span class="label">Very short follow-ups</span><span class="value" id="trust_short">__</span><span class="sub">% of follow-ups</span></div>
+    </div>
+    <div class="grid grid-2" style="margin-top:16px;">
+      <div class="card"><h3>Interrupt lead words</h3><canvas id="leadChart" height="200"></canvas></div>
+      <div class="card"><h3>"Give up" sessions</h3>
+        <p class="sub">Sessions whose final user message looks like a bailout
+          (short + caps, or contains stop/no/wtf).</p>
+        <p>Total: <strong id="trust_giveup">__</strong></p>
+        <details><summary>Examples</summary>
+          <table><thead><tr><th>task_id</th><th>last message</th><th>tools before</th></tr></thead>
+          <tbody id="trust_giveup_tbody"></tbody></table>
+        </details>
+      </div>
+    </div>
+
+    <!-- ============ REPOS ============ -->
+    <h2>Top repos</h2>
+    <div class="card">
+      <table><thead><tr>
+        <th>Repo</th><th>Sessions</th><th>Last activity</th><th>Primary model</th><th>Primary mode</th>
+      </tr></thead><tbody id="repo_tbody"></tbody></table>
+    </div>
+
+    <!-- ============ COACH ============ -->
+    <h2>Coach: your personalized growth plan</h2>
+    <div class="markdown"><h1>Coaching summary — The Debugger</h1>
+
+<h2>TL;DR</h2>
+
+<ul>
+<li><strong>Stop interrupting at depth 1.</strong> Your median and p90 tool depth at follow‑up are both <strong>1</strong> → wait for ≥2 tool calls before replying.</li>
+<li><strong>Tame Monday sprawl.</strong> Monday has <strong>128 sessions</strong> (peak), with <strong>303 act‑only vs 23 plan‑only</strong> overall and <strong>34.0% plan rate</strong> → require a written plan for long Monday sessions.</li>
+<li><strong>Reduce late‑night starts.</strong> 20–23h accounts for <strong>175 sessions (46+49+50+29)</strong> vs <strong>114 (41+37+27+9)</strong> for 8–11h → shift one execution block before 10:00.</li>
+<li><strong>Cap deep-session stacking.</strong> <strong>2,882.45 hours / 605 sessions (~4.8h avg)</strong> with p90 duration <strong>21,551,336 ms (~6h)</strong> → max 3 sessions &gt;2h/day.</li>
+<li><strong>Shorter messages, more self-correction (recently).</strong> Words/msg <strong>182.99 vs 240.11 (-57.12)</strong>; self-correction <strong>10.5% vs 4.45% (+6.05)</strong> → add a lightweight validation gate before new directives.</li>
+</ul>
+
+<p>---</p>
+
+<h2>Cognitive skills</h2>
+
+<h3>Add a validation gate before new directives</h3>
+<p><strong>You:</strong> Self-correction rate jumped to <strong>10.5% (recent)</strong> from <strong>4.45% (prior)</strong> — a <strong>+6.05</strong> delta.</p>
+<p><strong>Why:</strong> Rising self-correction suggests you’re issuing directives on partially verified state, then revising. That compounds in long sessions.</p>
+<p><strong>Try:</strong> For 2 weeks, before any new change request, ask 1 verification question or request a brief state summary. Target: validation in ≥1 of every 5 substantive turns. Watch if self-correction rate drops from <strong>10.5%</strong> toward prior levels.</p>
+
+<h3>Let tool work breathe (reduce depth‑1 interrupts)</h3>
+<p><strong>You:</strong> <code>tool_depth_at_followup</code> p50 = <strong>1</strong>, p90 = <strong>1</strong>.</p>
+<p><strong>Why:</strong> You often reply after a single tool call — likely cutting off retrieval/analysis mid‑stream, increasing rework.</p>
+<p><strong>Try:</strong> In file/tool tasks, wait until ≥2 tool calls complete (or “analysis complete”) before replying. Track 20 sessions; goal: raise your median follow‑up depth from <strong>1 → ≥2</strong>.</p>
+
+<h3>Manage cognitive load in long hauls</h3>
+<p><strong>You:</strong> <strong>2,882.45 total active hours</strong> over <strong>605 sessions</strong> (~<strong>4.8h/session</strong>). p90 session length <strong>~6h</strong>.</p>
+<p><strong>Why:</strong> Long sessions increase decision fatigue → more corrections, shorter messages, reactive loops.</p>
+<p><strong>Try:</strong> For 14 days, cap at <strong>3 sessions &gt;2h/day</strong>. Log daily deep sessions. Aim to reduce fatigue without lowering weekly output.</p>
+
+<p>---</p>
+
+<h2>Prompt craft</h2>
+
+<h3>Make execution requests more decisive</h3>
+<p><strong>You:</strong> Recent messages are shorter (<strong>182.99 vs 240.11 words</strong>, −<strong>57.12</strong>).</p>
+<p><strong>Why:</strong> Shorter prompts can be sharper — or under‑specified. Pair brevity with explicit outcomes to avoid back‑and‑forth.</p>
+<p><strong>Try:</strong> Start new threads with a verb + outcome + constraint block:</p>
+<pre><code>Refactor X to Y.
+Constraints: A, B, C.
+Success = tests pass + latency &lt; N ms.</code></pre>
+<p>Measure: average follow‑ups per task over 2 weeks.</p>
+
+<h3>Ground debug work in artifacts</h3>
+<p><strong>You:</strong> Heavy fix/edit pattern: <strong>5,956 replace_in_file + 4,821 read_file</strong> calls; <strong>19,248 total tool calls</strong>.</p>
+<p><strong>Why:</strong> Your workflow is artifact-heavy. Ambiguity costs more here than in ideation.</p>
+<p><strong>Try:</strong> In bug reports, always include exact error text or a minimal code block. Track avg follow‑ups per bug for 2 weeks; target −10%.</p>
+
+<h3>Add a 30‑second send check</h3>
+<p><strong>You:</strong> Typos increased to <strong>13.73 per 100 msgs (recent)</strong> from <strong>12.05 (prior)</strong>, +<strong>1.68</strong>.</p>
+<p><strong>Why:</strong> In constraint-heavy debug threads, small wording errors create misalignment.</p>
+<p><strong>Try:</strong> Before sending, re-read once for constraints/negations. Goal: bring typos back below <strong>12 per 100 msgs</strong> over the next window.</p>
+
+<p>---</p>
+
+<h2>Time patterns</h2>
+
+<h3>Add a 21:30 shutdown</h3>
+<p><strong>You:</strong> Peak hour <strong>22:00 (50 sessions)</strong>; 21:00 close at <strong>49</strong>. Redirect rate <strong>6.9% (41 redirects)</strong>.</p>
+<p><strong>Why:</strong> Late sessions correlate with rework and redirects.</p>
+<p><strong>Try:</strong> For 2 weeks, no new sessions after 21:30. Track sessions started after 21:30 and redirect rate (baseline <strong>6.9%</strong>).</p>
+
+<h3>Front‑load Monday with planning</h3>
+<p><strong>You:</strong> Monday = <strong>128 sessions</strong> (highest). Overall <strong>303 act‑only vs 23 plan‑only</strong>; plan rate <strong>34.0%</strong>.</p>
+<p><strong>Why:</strong> High act-only volume on your busiest day → long, reactive nights.</p>
+<p><strong>Try:</strong> Require a written plan before any Monday session &gt;1h. Target: reduce Monday act‑only share by 20%.</p>
+
+<h3>Shift one execution block before 10:00</h3>
+<p><strong>You:</strong> 20–23h = <strong>175 sessions</strong>; 8–11h = <strong>114 sessions</strong>.</p>
+<p><strong>Why:</strong> Execution is skewed late. Earlier deep work reduces spillover.</p>
+<p><strong>Try:</strong> Start one execution session before 10:00 daily for 2 weeks. Goal: cut 20–23h sessions by 25% while keeping weekly session count within ±10%.</p>
+
+<p>---</p>
+
+<h2>Trust calibration</h2>
+
+<h3>Replace very short follow‑ups with checkpoints</h3>
+<p><strong>You:</strong> <code>very_short_followup_pct</code> = <strong>5.0%</strong>.</p>
+<p><strong>Why:</strong> &lt;10‑word replies often signal premature interruption.</p>
+<p><strong>Try:</strong> When tempted to send a very short reply, instead ask: “What’s your current hypothesis and next step?” Target: reduce from <strong>5.0% → ≤3%</strong>.</p>
+
+<h3>Use a hypothesis check before exiting</h3>
+<p><strong>You:</strong> <strong>33 give‑up sessions</strong> out of <strong>4,501 followups (~0.7%)</strong>.</p>
+<p><strong>Why:</strong> Even small abandonment compounds across <strong>605 sessions</strong>.</p>
+<p><strong>Try:</strong> Before ending a stuck session, ask: “What’s the root cause now?” Goal: 0 abandoned sessions in the next 2 weeks.</p>
+
+<p>---</p>
+
+<h2>What’s changed (last 60 days)</h2>
+
+<ul>
+<li><strong>Messages shorter:</strong> 182.99 vs 240.11 words (<strong>−57.12</strong>).</li>
+<li><strong>More self-correction:</strong> 10.5% vs 4.45% (<strong>+6.05</strong>).</li>
+<li><strong>More caps density:</strong> 202.57 vs 187.2 (<strong>+15.37</strong>).</li>
+<li><strong>Fewer exclamation marks:</strong> 0.0 vs 0.22 (<strong>−0.22</strong>).</li>
+<li><strong>More typos:</strong> 13.73 vs 12.05 per 100 msgs (<strong>+1.68</strong>).</li>
+<li><strong>More bold usage:</strong> 0.32 vs 0.12 per msg (<strong>+0.20</strong>).</li>
+<li><strong>Slightly more backticks:</strong> 0.12 vs 0.11 per msg (<strong>+0.01</strong>).</li>
+</ul>
+
+<p><strong>By the numbers:</strong></p>
+<p>Recent vs prior averages — words/msg <strong>182.99 vs 240.11</strong>; self-correction <strong>10.5% vs 4.45%</strong>; caps/100 msgs <strong>202.57 vs 187.2</strong>; typos/100 msgs <strong>13.73 vs 12.05</strong>; bangs/msg <strong>0.0 vs 0.22</strong>; bold/msg <strong>0.32 vs 0.12</strong>; backticks/msg <strong>0.12 vs 0.11</strong>.</p>
+
+<p>---</p>
+
+<p>You’re a high-endurance builder with serious debug throughput (<strong>19,248 tool calls</strong>). The biggest unlock isn’t effort — it’s <strong>sequence control</strong>: plan before Monday sprawl, let tools finish, and move one deep block earlier.</p></div>
+
+    <!-- ============ PROFILE NARRATIVE ============ -->
+    <h2>Builder profile (narrative)</h2>
+    <div class="markdown"><h2>Your archetype</h2>
+<p><strong>The High-Throughput Implementer.</strong></p>
+<p>605 sessions, 19,248 tool calls, and 2,882.45 active hours signal consistent shipping. You skew toward execution (303 act-only sessions) with a 34.0% plan rate when needed.</p>
+<p>Secondaries: <strong>Repo Loyalist</strong> (24 repos, deep focus on a few) and <strong>Infra Tinkerer</strong> (Azure/OpenAI container work).</p>
+
+<h2>How you work</h2>
+<p>Plan rate: <strong>34.0%</strong> (183 plan+act, 23 plan-only).</p>
+<p>Primary model: <strong>claude-sonnet-4-5-20250929:1m (172 sessions)</strong>.</p>
+<p>Top tools: <code>replace_in_file</code> (5,956), <code>read_file</code> (4,821), <code>execute_command</code> (2,236), <code>write_to_file</code> (2,217), <code>attempt_completion</code> (2,100).</p>
+<p>Peak time: <strong>22:00</strong>, busiest day: <strong>Monday (128 sessions)</strong>.</p>
+
+<h2>What you build on</h2>
+<p><strong>24 unique repos</strong>; 216 sessions tied to repos.</p>
+<p>Top repo: <strong>Repo A (82 sessions)</strong>.</p>
+<p>Also active in <strong>Patient Intake Portal (26)</strong> and <code>Repo E</code> (16).</p>
+<p>Frequent stack signals: <code>node_modules next dist</code> (98), <code>react-dom-client development js</code> (52), Azure (<code>intakely azurewebsites net</code>, 28).</p>
+
+<h2>Your prompt style</h2>
+<p>Median prompt length: <strong>55 words</strong> (p90: 260; 324 long prompts).</p>
+<p>Polite rate: <strong>5.2%</strong> (31). Redirect rate: <strong>6.9%</strong> (41).</p>
+<p>ALL-CAPS usage: <strong>1</strong> instance.</p>
+<p>You favor detailed, context-heavy instructions over short bursts (only 1 short prompt recorded).</p>
+
+<h2>Where to grow</h2>
+<ul>
+<li><strong>Upfront design rigor</strong> — Experiment: default to plan-first for complex refactors (raise plan rate above 34%).</li>
+<li><strong>Prompt compression</strong> — Experiment: cap first prompt at ≤120 words; push overflow into follow-ups.</li>
+<li><strong>Failure pattern logging</strong> — Experiment: after crash-prone tasks (e.g., Azure/OpenAI config), add a brief “assumptions + risks” block before edits.</li>
+</ul></div>
+
+    
+<div class="reach-out" id="reach-out">
+  <h2>Reach out</h2>
+  <p>I'm <strong>Kaival P.</strong> — I build with AI agents full-time and instrument
+     the process so I can keep getting sharper. If any of the patterns in this
+     report would be useful on your team, here's how to get in touch.</p>
+  <div class="cta-row">
+    <div class="cta">
+      <strong>Hiring an AI-native engineer?</strong>
+      <span>Backend + product. I plan-first, ship in long agentic runs,
+        and pair tightly with Cline/Claude/Codex.</span>
+      <a href="https://www.linkedin.com/in/kaival-p-46bb1374/" target="_blank" rel="noopener">Reach me on LinkedIn &rarr;</a>
+    </div>
+    <div class="cta">
+      <strong>Looking for a co-founder?</strong>
+      <span>Open to talking. I move fast on weird problems and I instrument
+        everything (this report is exhibit A).</span>
+      <a href="https://www.linkedin.com/in/kaival-p-46bb1374/" target="_blank" rel="noopener">Let's talk &rarr;</a>
+    </div>
+    <div class="cta">
+      <strong>Want a profile like this for your team?</strong>
+      <span>The whole pipeline is local-only and reusable. Happy to share
+        the tool or run it for you.</span>
+      <a href="https://www.linkedin.com/in/kaival-p-46bb1374/" target="_blank" rel="noopener">Get in touch &rarr;</a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="footer">
+      Generated by my own local AI-session analyzer &middot; <a id="methodology" href="#methodology" style="color:inherit;">methodology</a>: 605 Cline sessions parsed, 4,976 user messages classified by GPT-5.2 across 33 Azure deployments, 5-layer pipeline (deterministic metrics + LLM summarizer + cognition + coach). No code, transcripts, or repo names were uploaded — only computed stats appear here.
+    </div>
+  </div>
+
+
+  <!-- Chart.js + D3 + d3-sankey -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3"></script>
+
+  <script>
+  // ============ Inline data ============
+  const DATA = {"metrics": {"generated_at": "2026-06-05T21:09:07.404499+00:00", "total_sessions": 605, "sessions_with_repo": 216, "date_range": {"start_iso": "2025-01-30T12:57:33.427000-04:00", "end_iso": "2026-06-05T17:36:22.542000-03:00"}, "timing": {"hour_histogram_local": [9, 7, 6, 10, 10, 17, 33, 33, 41, 37, 27, 9, 24, 36, 17, 29, 26, 30, 10, 20, 46, 49, 50, 29], "day_of_week_histogram_local": [128, 113, 99, 104, 85, 45, 31], "day_of_week_labels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], "peak_hour_local": 22, "peak_day_local": "Mon", "duration_ms": {"count": 595, "min_ms": 4345, "p50_ms": 1394226, "p90_ms": 21551336, "p99_ms": 173729676, "max_ms": 2347892960}, "total_active_hours": 2882.45}, "session_volume": {"user_msgs_total": 4974, "user_msgs_p50": 4, "user_msgs_p90": 21, "user_msgs_max": 124}, "tools": {"total_tool_calls": 19248, "by_tool": {"replace_in_file": 5956, "read_file": 4821, "execute_command": 2236, "write_to_file": 2217, "attempt_completion": 2100, "list_files": 704, "plan_mode_respond": 600, "search_files": 526, "ask_followup_question": 78, "use_mcp_tool": 8, "new_task": 1, "list_code_definition_names": 1}, "top_5": ["replace_in_file", "read_file", "execute_command", "write_to_file", "attempt_completion"]}, "models": {"by_model": {"claude-sonnet-4-5-20250929:1m": 172, "claude-3-7-sonnet-20250219": 116, "claude-sonnet-4-20250514": 101, "claude-opus-4-5-20251101": 35, "claude-sonnet-4-20250514:1m": 29, "claude-opus-4-7:1m": 29, "claude-opus-4-1-20250805": 14, "claude-sonnet-4-6:1m": 8, "claude-opus-4-20250514": 4, "claude-opus-4-6:1m": 1}, "primary_model": "claude-sonnet-4-5-20250929:1m", "plan_only_sessions": 23, "act_only_sessions": 303, "plan_and_act_sessions": 183, "plan_rate_pct": 34.0, "by_mode_bucket": {"unknown": 96, "act_only": 303, "plan_and_act": 183, "plan_only": 23}}, "cline_versions": {"3.46.1": 68, "3.56.2": 38, "3.52.0": 19, "3.51.0": 11, "3.56.1": 8, "3.61.0": 8, "3.83.0": 7, "3.82.0": 7, "3.84.0": 6, "3.66.0": 4, "3.76.0": 4, "3.80.0": 2, "3.87.0": 2, "3.45.1": 1, "3.79.0": 1, "3.86.0": 1}, "prompts": {"length": {"count": 593, "min": 3, "p50": 55, "p90": 260, "p99": 329, "max": 424, "under_10_words_pct": 2.4}, "top_phrases": [{"phrase": "[redacted phrase]", "count": 3}, {"phrase": "[redacted phrase]", "count": 2}, {"phrase": "[redacted phrase]", "count": 2}, {"phrase": "[redacted phrase]", "count": 2}, {"phrase": "[redacted phrase]", "count": 2}, {"phrase": "[redacted phrase]", "count": 2}, {"phrase": "[redacted phrase]", "count": 2}, {"phrase": "[redacted phrase]", "count": 2}, {"phrase": "[redacted phrase]", "count": 2}, {"phrase": "[redacted phrase]", "count": 2}, {"phrase": "[redacted phrase]", "count": 1}, {"phrase": "[redacted phrase]", "count": 1}, {"phrase": "[redacted phrase]", "count": 1}, {"phrase": "[redacted phrase]", "count": 1}, {"phrase": "[redacted phrase]", "count": 1}, {"phrase": "[redacted phrase]", "count": 1}, {"phrase": "[redacted phrase]", "count": 1}, {"phrase": "[redacted phrase]", "count": 1}, {"phrase": "[redacted phrase]", "count": 1}, {"phrase": "[redacted phrase]", "count": 1}, {"phrase": "[redacted phrase]", "count": 1}, {"phrase": "[redacted phrase]", "count": 1}, {"phrase": "[redacted phrase]", "count": 1}, {"phrase": "[redacted phrase]", "count": 1}, {"phrase": "[redacted phrase]", "count": 1}], "top_bigrams": [{"phrase": "[redacted]", "count": 203}, {"phrase": "[redacted]", "count": 197}, {"phrase": "[redacted]", "count": 197}, {"phrase": "[redacted]", "count": 197}, {"phrase": "[redacted]", "count": 148}, {"phrase": "[redacted]", "count": 106}, {"phrase": "[redacted]", "count": 98}, {"phrase": "[redacted]", "count": 98}, {"phrase": "[redacted]", "count": 97}, {"phrase": "[redacted]", "count": 80}, {"phrase": "[redacted]", "count": 61}, {"phrase": "[redacted]", "count": 58}, {"phrase": "[redacted]", "count": 57}, {"phrase": "[redacted]", "count": 55}, {"phrase": "[redacted]", "count": 52}, {"phrase": "[redacted]", "count": 42}, {"phrase": "[redacted]", "count": 41}, {"phrase": "[redacted]", "count": 41}, {"phrase": "[redacted]", "count": 41}, {"phrase": "[redacted]", "count": 41}, {"phrase": "[redacted]", "count": 41}, {"phrase": "[redacted]", "count": 41}, {"phrase": "[redacted]", "count": 41}, {"phrase": "[redacted]", "count": 38}, {"phrase": "[redacted]", "count": 36}], "top_trigrams": [{"phrase": "[redacted]", "count": 197}, {"phrase": "[redacted]", "count": 197}, {"phrase": "[redacted]", "count": 197}, {"phrase": "[redacted]", "count": 106}, {"phrase": "[redacted]", "count": 98}, {"phrase": "[redacted]", "count": 97}, {"phrase": "[redacted]", "count": 80}, {"phrase": "[redacted]", "count": 58}, {"phrase": "[redacted]", "count": 55}, {"phrase": "[redacted]", "count": 52}, {"phrase": "[redacted]", "count": 45}, {"phrase": "[redacted]", "count": 41}, {"phrase": "[redacted]", "count": 41}, {"phrase": "[redacted]", "count": 41}, {"phrase": "[redacted]", "count": 41}, {"phrase": "[redacted]", "count": 41}, {"phrase": "[redacted]", "count": 38}, {"phrase": "[redacted]", "count": 38}, {"phrase": "[redacted]", "count": 34}, {"phrase": "[redacted]", "count": 34}, {"phrase": "[redacted]", "count": 34}, {"phrase": "[redacted]", "count": 33}, {"phrase": "[redacted]", "count": 32}, {"phrase": "[redacted]", "count": 28}, {"phrase": "[redacted]", "count": 28}], "all_caps_count": 1, "polite_count": 31, "polite_rate_pct": 5.2, "redirect_count": 41, "redirect_rate_pct": 6.9, "short_prompts_count": 1, "long_prompts_count": 324, "top_crashouts": [{"score": 11}, {"score": 8}, {"score": 7}, {"score": 5}, {"score": 4}], "all_caps_examples": [{}]}, "repos": {"unique_repo_count": 24, "table": [{"path": "Repo A", "name": "Repo A", "sessions": 82, "last_seen_ts": 1774939009075, "last_seen_iso": "2026-03-31T03:36:49.075000-03:00", "primary_model": "claude-sonnet-4-5-20250929:1m", "primary_mode": "act_only"}, {"path": "Repo B", "name": "Repo B", "sessions": 26, "last_seen_ts": 1780581449927, "last_seen_iso": "2026-06-04T10:57:29.927000-03:00", "primary_model": "claude-opus-4-7:1m", "primary_mode": "plan_and_act"}, {"path": "Repo C", "name": "Repo C", "sessions": 22, "last_seen_ts": 1769436347626, "last_seen_iso": "2026-01-26T10:05:47.626000-04:00", "primary_model": "claude-sonnet-4-5-20250929:1m", "primary_mode": "act_only"}, {"path": "Repo D", "name": "Repo D", "sessions": 21, "last_seen_ts": 1770933289159, "last_seen_iso": "2026-02-12T17:54:49.159000-04:00", "primary_model": "claude-sonnet-4-5-20250929:1m", "primary_mode": "act_only"}, {"path": "Repo E", "name": "Repo E", "sessions": 16, "last_seen_ts": 1774091081159, "last_seen_iso": "2026-03-21T08:04:41.159000-03:00", "primary_model": "claude-sonnet-4-5-20250929:1m", "primary_mode": "act_only"}, {"path": "Repo F", "name": "Repo F", "sessions": 11, "last_seen_ts": 1746041387553, "last_seen_iso": "2025-04-30T16:29:47.553000-03:00", "primary_model": "claude-3-7-sonnet-20250219", "primary_mode": "act_only"}, {"path": "Repo G", "name": "Repo G", "sessions": 11, "last_seen_ts": 1772032574540, "last_seen_iso": "2026-02-25T11:16:14.540000-04:00", "primary_model": "claude-sonnet-4-5-20250929:1m", "primary_mode": "act_only"}, {"path": "Repo H", "name": "Repo H", "sessions": 9, "last_seen_ts": 1744331129707, "last_seen_iso": "2025-04-10T21:25:29.707000-03:00", "primary_model": "claude-3-7-sonnet-20250219", "primary_mode": "act_only"}, {"path": "Repo I", "name": "Repo I", "sessions": 2, "last_seen_ts": 1746453676987, "last_seen_iso": "2025-05-05T11:01:16.987000-03:00", "primary_model": "claude-3-7-sonnet-20250219", "primary_mode": "plan_and_act"}, {"path": "Repo J", "name": "Repo J", "sessions": 2, "last_seen_ts": 1767060374724, "last_seen_iso": "2025-12-29T22:06:14.724000-04:00", "primary_model": "claude-sonnet-4-5-20250929:1m", "primary_mode": "act_only"}, {"path": "Repo K", "name": "Repo K", "sessions": 1, "last_seen_ts": 1744643326099, "last_seen_iso": "2025-04-14T12:08:46.099000-03:00", "primary_model": "claude-3-7-sonnet-20250219", "primary_mode": "act_only"}, {"path": "Repo L", "name": "Repo L", "sessions": 1, "last_seen_ts": 1744759437114, "last_seen_iso": "2025-04-15T20:23:57.114000-03:00", "primary_model": "claude-3-7-sonnet-20250219", "primary_mode": "plan_and_act"}, {"path": "Repo M", "name": "Repo M", "sessions": 1, "last_seen_ts": 1745925771906, "last_seen_iso": "2025-04-29T08:22:51.906000-03:00", "primary_model": "claude-3-7-sonnet-20250219", "primary_mode": "act_only"}, {"path": "Repo N", "name": "Repo N", "sessions": 1, "last_seen_ts": 1746457532875, "last_seen_iso": "2025-05-05T12:05:32.875000-03:00", "primary_model": "claude-3-7-sonnet-20250219", "primary_mode": "plan_and_act"}, {"path": "Repo O", "name": "Repo O", "sessions": 1, "last_seen_ts": 1749846742653, "last_seen_iso": "2025-06-13T17:32:22.653000-03:00", "primary_model": "claude-sonnet-4-20250514", "primary_mode": "plan_and_act"}, {"path": "Repo P", "name": "Repo P", "sessions": 1, "last_seen_ts": 1758621491055, "last_seen_iso": "2025-09-23T06:58:11.055000-03:00", "primary_model": "claude-sonnet-4-20250514:1m", "primary_mode": "plan_and_act"}, {"path": "Repo Q", "name": "Repo Q", "sessions": 1, "last_seen_ts": 1763309979214, "last_seen_iso": "2025-11-16T12:19:39.214000-04:00", "primary_model": "claude-sonnet-4-5-20250929:1m", "primary_mode": "act_only"}, {"path": "Repo R", "name": "Repo R", "sessions": 1, "last_seen_ts": 1763312835173, "last_seen_iso": "2025-11-16T13:07:15.173000-04:00", "primary_model": "claude-sonnet-4-5-20250929:1m", "primary_mode": "act_only"}, {"path": "Repo S", "name": "Repo S", "sessions": 1, "last_seen_ts": 1765869512913, "last_seen_iso": "2025-12-16T03:18:32.913000-04:00", "primary_model": "claude-sonnet-4-5-20250929:1m", "primary_mode": "plan_only"}, {"path": "Repo T", "name": "Repo T", "sessions": 1, "last_seen_ts": 1767705937874, "last_seen_iso": "2026-01-06T09:25:37.874000-04:00", "primary_model": "claude-sonnet-4-5-20250929:1m", "primary_mode": "act_only"}, {"path": "Repo U", "name": "Repo U", "sessions": 1, "last_seen_ts": 1767715785701, "last_seen_iso": "2026-01-06T12:09:45.701000-04:00", "primary_model": "claude-sonnet-4-5-20250929:1m", "primary_mode": "act_only"}, {"path": "Repo V", "name": "Repo V", "sessions": 1, "last_seen_ts": 1771796620188, "last_seen_iso": "2026-02-22T17:43:40.188000-04:00", "primary_model": "claude-sonnet-4-5-20250929:1m", "primary_mode": "act_only"}, {"path": "Repo W", "name": "Repo W", "sessions": 1, "last_seen_ts": 1771845513434, "last_seen_iso": "2026-02-23T07:18:33.434000-04:00", "primary_model": "claude-sonnet-4-5-20250929:1m", "primary_mode": "act_only"}, {"path": "Repo X", "name": "Repo X", "sessions": 1, "last_seen_ts": 1780691782542, "last_seen_iso": "2026-06-05T17:36:22.542000-03:00", "primary_model": "claude-opus-4-7:1m", "primary_mode": "plan_and_act"}]}, "files": {"unique_files": 3210, "top_files": [{"path": "<file>/schema.ts", "sessions": 293}, {"path": "<file>/main.js", "sessions": 160}, {"path": "<file>/orchestrator.ts", "sessions": 150}, {"path": "<file>/App-new.jsx", "sessions": 147}, {"path": "<file>/package.json", "sessions": 144}, {"path": "<file>/page.tsx", "sessions": 129}, {"path": "<file>/ClinicalWorkstationContent.tsx", "sessions": 120}, {"path": "<file>/RoleBasedNavigation.tsx", "sessions": 110}, {"path": "<file>/layout.tsx", "sessions": 103}, {"path": "<file>/FormField.tsx", "sessions": 103}, {"path": "<file>/middleware.ts", "sessions": 102}, {"path": "<file>/chatbot.ts", "sessions": 85}, {"path": "<file>/FormLogicBuilder.tsx", "sessions": 84}, {"path": "<file>/App-new.jsx", "sessions": 80}, {"path": "<file>/Layout.tsx", "sessions": 78}, {"path": "<file>/forms.ts", "sessions": 76}, {"path": "<file>/Clinexa_Tradeshow_Banner.html", "sessions": 76}, {"path": "<file>/SectionalReportBuilder.tsx", "sessions": 73}, {"path": "<file>/page.tsx", "sessions": 73}, {"path": "<file>/page.tsx", "sessions": 71}, {"path": "<file>/Clinexa_Brochure.html", "sessions": 66}, {"path": "<file>/UserSync.tsx", "sessions": 65}, {"path": "<file>/users.ts", "sessions": 64}, {"path": "<file>/FormElementProperties.tsx", "sessions": 64}, {"path": "<file>/database.js", "sessions": 63}], "top_dirs": [{"path": "<dir>", "sessions": 1782}, {"path": "<dir>", "sessions": 1440}, {"path": "<dir>", "sessions": 625}, {"path": "<dir>", "sessions": 479}, {"path": "<dir>", "sessions": 468}, {"path": "<dir>", "sessions": 357}, {"path": "<dir>", "sessions": 327}, {"path": "<dir>", "sessions": 296}, {"path": "<dir>", "sessions": 270}, {"path": "<dir>", "sessions": 265}, {"path": "<dir>", "sessions": 243}, {"path": "<dir>", "sessions": 233}, {"path": "<dir>", "sessions": 179}, {"path": "<dir>", "sessions": 175}, {"path": "<dir>", "sessions": 161}], "top_extensions": [{"ext": ".tsx", "sessions": 7061}, {"ext": ".ts", "sessions": 4212}, {"ext": ".js", "sessions": 1364}, {"ext": ".py", "sessions": 1355}, {"ext": ".md", "sessions": 943}, {"ext": ".jsx", "sessions": 922}, {"ext": ".json", "sessions": 360}, {"ext": ".html", "sessions": 332}, {"ext": ".ps1", "sessions": 161}, {"ext": ".txt", "sessions": 91}, {"ext": ".yml", "sessions": 87}, {"ext": ".local", "sessions": 83}, {"ext": ".sh", "sessions": 64}, {"ext": ".pdf", "sessions": 52}, {"ext": ".csv", "sessions": 52}]}}, "cognition": {"generated_at": "2026-06-05T18:26:13.926121-03:00", "messages": 4976, "style_fingerprint": {"total_messages": 4950, "avg_words_per_message": 232.63, "avg_sentence_words": 4.49, "multiline_message_pct": 25.4, "inline_code_use_pct": 4.3, "openings": {"by_label": {"can_you": 550, "lets": 293, "i_want": 277, "negation": 176, "yes_continue": 171, "redirect": 100, "explain": 94, "question_what": 70, "question_when": 51, "debug_investigate": 46, "imperative_run": 42, "please": 33, "question_where": 32, "make": 24, "remove_delete": 22, "create": 12, "add": 9, "question_which": 9, "update_change": 6, "fix": 5, "would_you": 4, "show_me": 1}, "top_5": [{"label": "can_you", "count": 550}, {"label": "lets", "count": 293}, {"label": "i_want", "count": 277}, {"label": "negation", "count": 176}, {"label": "yes_continue", "count": 171}], "labelled_pct": 40.9}, "emphasis": {"caps_runs_total": 10181, "caps_runs_per_100_msgs": 205.7, "bangs_total": 1717, "bangs_per_msg": 0.35, "bold_uses_per_msg": 0.17, "backtick_uses_per_msg": 0.11}, "typos": {"by_label": {"dont": 264, "wont": 107, "cant": 68, "missing_apostrophe_im": 3, "ur": 3, "teh": 1}, "total": 446, "per_100_msgs": 9.0}, "self_correction": {"messages_with_correction": 152, "pct_of_messages": 3.1}, "monthly": [{"month": "2025-01", "messages": 2, "avg_words_per_message": 116.5, "self_correction_rate_pct": 0.0, "caps_runs_per_100_msgs": 0.0, "bangs_per_msg": 0.0, "typos_per_100_msgs": 50.0, "bold_per_msg": 0.0, "backtick_per_msg": 0.0, "top_opening": "add", "top_opening_count": 1}, {"month": "2025-02", "messages": 74, "avg_words_per_message": 893.72, "self_correction_rate_pct": 8.1, "caps_runs_per_100_msgs": 310.8, "bangs_per_msg": 0.86, "typos_per_100_msgs": 5.4, "bold_per_msg": 0.0, "backtick_per_msg": 0.19, "top_opening": "redirect", "top_opening_count": 6}, {"month": "2025-03", "messages": 29, "avg_words_per_message": 49.28, "self_correction_rate_pct": 17.2, "caps_runs_per_100_msgs": 44.8, "bangs_per_msg": 0.0, "typos_per_100_msgs": 20.7, "bold_per_msg": 0.0, "backtick_per_msg": 0.0, "top_opening": "redirect", "top_opening_count": 4}, {"month": "2025-04", "messages": 193, "avg_words_per_message": 47.06, "self_correction_rate_pct": 2.1, "caps_runs_per_100_msgs": 16.1, "bangs_per_msg": 0.0, "typos_per_100_msgs": 2.6, "bold_per_msg": 0.0, "backtick_per_msg": 0.25, "top_opening": "i_want", "top_opening_count": 25}, {"month": "2025-05", "messages": 544, "avg_words_per_message": 68.05, "self_correction_rate_pct": 2.4, "caps_runs_per_100_msgs": 38.1, "bangs_per_msg": 0.05, "typos_per_100_msgs": 4.2, "bold_per_msg": 0.0, "backtick_per_msg": 0.19, "top_opening": "i_want", "top_opening_count": 54}, {"month": "2025-06", "messages": 468, "avg_words_per_message": 105.33, "self_correction_rate_pct": 2.1, "caps_runs_per_100_msgs": 40.8, "bangs_per_msg": 0.01, "typos_per_100_msgs": 7.9, "bold_per_msg": 0.06, "backtick_per_msg": 0.16, "top_opening": "can_you", "top_opening_count": 49}, {"month": "2025-07", "messages": 357, "avg_words_per_message": 399.0, "self_correction_rate_pct": 3.6, "caps_runs_per_100_msgs": 344.8, "bangs_per_msg": 0.47, "typos_per_100_msgs": 8.4, "bold_per_msg": 1.08, "backtick_per_msg": 0.3, "top_opening": "can_you", "top_opening_count": 20}, {"month": "2025-08", "messages": 339, "avg_words_per_message": 675.33, "self_correction_rate_pct": 2.9, "caps_runs_per_100_msgs": 1132.2, "bangs_per_msg": 0.07, "typos_per_100_msgs": 11.2, "bold_per_msg": 0.24, "backtick_per_msg": 0.12, "top_opening": "can_you", "top_opening_count": 35}, {"month": "2025-09", "messages": 285, "avg_words_per_message": 414.07, "self_correction_rate_pct": 3.9, "caps_runs_per_100_msgs": 447.0, "bangs_per_msg": 0.12, "typos_per_100_msgs": 5.6, "bold_per_msg": 0.15, "backtick_per_msg": 0.08, "top_opening": "can_you", "top_opening_count": 40}, {"month": "2025-10", "messages": 207, "avg_words_per_message": 118.58, "self_correction_rate_pct": 5.3, "caps_runs_per_100_msgs": 52.2, "bangs_per_msg": 0.08, "typos_per_100_msgs": 10.1, "bold_per_msg": 0.0, "backtick_per_msg": 0.23, "top_opening": "can_you", "top_opening_count": 25}, {"month": "2025-11", "messages": 94, "avg_words_per_message": 85.35, "self_correction_rate_pct": 4.3, "caps_runs_per_100_msgs": 33.0, "bangs_per_msg": 0.01, "typos_per_100_msgs": 11.7, "bold_per_msg": 0.0, "backtick_per_msg": 0.0, "top_opening": "can_you", "top_opening_count": 9}, {"month": "2025-12", "messages": 339, "avg_words_per_message": 73.93, "self_correction_rate_pct": 3.8, "caps_runs_per_100_msgs": 64.9, "bangs_per_msg": 0.06, "typos_per_100_msgs": 16.2, "bold_per_msg": 0.0, "backtick_per_msg": 0.03, "top_opening": "can_you", "top_opening_count": 48}, {"month": "2026-01", "messages": 811, "avg_words_per_message": 171.03, "self_correction_rate_pct": 1.5, "caps_runs_per_100_msgs": 113.7, "bangs_per_msg": 0.05, "typos_per_100_msgs": 8.5, "bold_per_msg": 0.13, "backtick_per_msg": 0.02, "top_opening": "can_you", "top_opening_count": 122}, {"month": "2026-02", "messages": 907, "avg_words_per_message": 277.0, "self_correction_rate_pct": 1.8, "caps_runs_per_100_msgs": 146.5, "bangs_per_msg": 1.45, "typos_per_100_msgs": 10.6, "bold_per_msg": 0.07, "backtick_per_msg": 0.03, "top_opening": "can_you", "top_opening_count": 149}, {"month": "2026-03", "messages": 26, "avg_words_per_message": 107.42, "self_correction_rate_pct": 7.7, "caps_runs_per_100_msgs": 23.1, "bangs_per_msg": 0.0, "typos_per_100_msgs": 7.7, "bold_per_msg": 0.0, "backtick_per_msg": 0.0, "top_opening": "i_want", "top_opening_count": 5}, {"month": "2026-04", "messages": 72, "avg_words_per_message": 268.65, "self_correction_rate_pct": 5.6, "caps_runs_per_100_msgs": 338.9, "bangs_per_msg": 0.0, "typos_per_100_msgs": 12.5, "bold_per_msg": 0.33, "backtick_per_msg": 0.04, "top_opening": "can_you", "top_opening_count": 12}, {"month": "2026-05", "messages": 181, "avg_words_per_message": 145.1, "self_correction_rate_pct": 7.7, "caps_runs_per_100_msgs": 155.2, "bangs_per_msg": 0.0, "typos_per_100_msgs": 10.5, "bold_per_msg": 0.62, "backtick_per_msg": 0.31, "top_opening": "i_want", "top_opening_count": 22}, {"month": "2026-06", "messages": 22, "avg_words_per_message": 135.23, "self_correction_rate_pct": 18.2, "caps_runs_per_100_msgs": 113.6, "bangs_per_msg": 0.0, "typos_per_100_msgs": 18.2, "bold_per_msg": 0.0, "backtick_per_msg": 0.0, "top_opening": "redirect", "top_opening_count": 3}]}, "decision_frames": {"overall_counts": {"anti_instruction": 354, "concrete_steps": 316, "example_grounded": 110, "abstract_goal": 84, "meta_instruction": 6}, "first_message_counts": {"anti_instruction": 43, "concrete_steps": 42, "example_grounded": 12, "abstract_goal": 5}, "followup_message_counts": {"anti_instruction": 311, "concrete_steps": 274, "example_grounded": 98, "abstract_goal": 79, "meta_instruction": 6}, "first_n": 473, "followup_n": 4477, "rates_pct": {"abstract_goal": 1.7, "concrete_steps": 6.4, "anti_instruction": 7.2, "example_grounded": 2.2, "validation_seeking": 0.0, "meta_instruction": 0.1}, "specificity_ladder": [{"ordinal": "first", "messages": 473, "concrete_steps_pct": 8.9, "anti_instruction_pct": 9.1}, {"ordinal": "f1", "messages": 407, "concrete_steps_pct": 8.1, "anti_instruction_pct": 7.4}, {"ordinal": "f2", "messages": 360, "concrete_steps_pct": 5.3, "anti_instruction_pct": 9.7}, {"ordinal": "f3", "messages": 318, "concrete_steps_pct": 3.8, "anti_instruction_pct": 5.3}, {"ordinal": "f4", "messages": 290, "concrete_steps_pct": 5.2, "anti_instruction_pct": 6.9}, {"ordinal": "f5+", "messages": 3102, "concrete_steps_pct": 6.3, "anti_instruction_pct": 6.7}], "examples": {"abstract_goal": [{}, {}, {}], "concrete_steps": [{}, {}, {}], "anti_instruction": [{}, {}, {}], "example_grounded": [{}, {}, {}], "validation_seeking": [], "meta_instruction": [{}, {}, {}]}}, "trust_patterns": {"followup_count": 4501, "expletive_message_count": 15, "very_short_followup_pct": 5.0, "tool_depth_at_followup": {"min": 0, "p25": 0, "p50": 1, "p90": 1, "max": 12, "mean": 0.57}, "asst_chars_before_followup": {"p50": 241, "p90": 3169, "max": 28437, "mean": 1237}, "time_since_prev_ms": {"p50": 172230, "p90": 688587, "max": 695818496, "mean": 1129396}, "interrupt_lead_words": {"no": 126, "actually": 78, "dont": 27, "wait": 3, "nope": 2}, "give_up_sessions_count": 33, "give_up_sessions_examples": [{"word_count": 41, "tool_calls_since_prev_user": 1, "preceding_assistant_chars": 675}, {"word_count": 4, "tool_calls_since_prev_user": 1, "preceding_assistant_chars": 2148}, {"word_count": 8, "tool_calls_since_prev_user": 1, "preceding_assistant_chars": 3049}, {"word_count": 7, "tool_calls_since_prev_user": 1, "preceding_assistant_chars": 547}, {"word_count": 10, "tool_calls_since_prev_user": 1, "preceding_assistant_chars": 1178}, {"word_count": 4, "tool_calls_since_prev_user": 1, "preceding_assistant_chars": 1563}, {"word_count": 437, "tool_calls_since_prev_user": 1, "preceding_assistant_chars": 7089}, {"word_count": 12, "tool_calls_since_prev_user": 0, "preceding_assistant_chars": 210}, {"word_count": 25, "tool_calls_since_prev_user": 1, "preceding_assistant_chars": 336}, {"word_count": 24, "tool_calls_since_prev_user": 1, "preceding_assistant_chars": 173}]}}, "mode_aggregates": {"count": 4950, "mode_total": {"exploration": 1508, "course_correction": 1051, "specification": 785, "validation": 738, "architecture": 417, "quick_fix": 330, "frustration_redirect": 107, "meta_teaching": 14}, "mode_first": {"exploration": 120, "specification": 104, "course_correction": 88, "validation": 65, "architecture": 60, "quick_fix": 23, "frustration_redirect": 11, "meta_teaching": 2}, "mode_followup": {"exploration": 1388, "course_correction": 963, "specification": 681, "validation": 673, "architecture": 357, "quick_fix": 307, "frustration_redirect": 96, "meta_teaching": 12}, "mode_by_ordinal": {"first": {"exploration": 120, "specification": 104, "course_correction": 88, "validation": 65, "architecture": 60, "quick_fix": 23, "frustration_redirect": 11, "meta_teaching": 2}, "f1": {"course_correction": 106, "exploration": 101, "specification": 71, "validation": 51, "architecture": 48, "quick_fix": 19, "frustration_redirect": 11}, "f2": {"exploration": 103, "course_correction": 66, "specification": 64, "validation": 55, "architecture": 37, "quick_fix": 26, "frustration_redirect": 8, "meta_teaching": 1}, "f3": {"exploration": 91, "course_correction": 72, "validation": 56, "specification": 48, "architecture": 27, "quick_fix": 18, "frustration_redirect": 6}, "f4+": {"exploration": 1093, "course_correction": 719, "validation": 511, "specification": 498, "architecture": 245, "quick_fix": 244, "frustration_redirect": 71, "meta_teaching": 11}}, "transitions_top": [{"from": "exploration", "to": "exploration", "count": 654}, {"from": "course_correction", "to": "course_correction", "count": 288}, {"from": "exploration", "to": "course_correction", "count": 231}, {"from": "course_correction", "to": "exploration", "count": 230}, {"from": "validation", "to": "validation", "count": 187}, {"from": "specification", "to": "specification", "count": 185}, {"from": "validation", "to": "exploration", "count": 173}, {"from": "exploration", "to": "specification", "count": 156}, {"from": "course_correction", "to": "specification", "count": 152}, {"from": "specification", "to": "course_correction", "count": 152}, {"from": "exploration", "to": "validation", "count": 149}, {"from": "specification", "to": "exploration", "count": 148}, {"from": "validation", "to": "course_correction", "count": 139}, {"from": "course_correction", "to": "validation", "count": 108}, {"from": "specification", "to": "validation", "count": 99}, {"from": "architecture", "to": "architecture", "count": 85}, {"from": "exploration", "to": "architecture", "count": 83}, {"from": "quick_fix", "to": "exploration", "count": 81}, {"from": "architecture", "to": "course_correction", "count": 79}, {"from": "exploration", "to": "quick_fix", "count": 74}, {"from": "architecture", "to": "exploration", "count": 70}, {"from": "course_correction", "to": "quick_fix", "count": 69}, {"from": "validation", "to": "specification", "count": 68}, {"from": "architecture", "to": "specification", "count": 68}, {"from": "architecture", "to": "validation", "count": 65}, {"from": "course_correction", "to": "architecture", "count": 64}, {"from": "specification", "to": "quick_fix", "count": 55}, {"from": "specification", "to": "architecture", "count": 52}, {"from": "quick_fix", "to": "course_correction", "count": 52}, {"from": "quick_fix", "to": "quick_fix", "count": 50}, {"from": "quick_fix", "to": "validation", "count": 47}, {"from": "validation", "to": "architecture", "count": 44}, {"from": "quick_fix", "to": "specification", "count": 41}, {"from": "validation", "to": "quick_fix", "count": 38}, {"from": "frustration_redirect", "to": "exploration", "count": 29}, {"from": "exploration", "to": "frustration_redirect", "count": 26}, {"from": "course_correction", "to": "frustration_redirect", "count": 21}, {"from": "frustration_redirect", "to": "course_correction", "count": 20}, {"from": "quick_fix", "to": "architecture", "count": 20}, {"from": "architecture", "to": "quick_fix", "count": 18}, {"from": "frustration_redirect", "to": "frustration_redirect", "count": 17}, {"from": "frustration_redirect", "to": "validation", "count": 16}, {"from": "validation", "to": "frustration_redirect", "count": 13}, {"from": "frustration_redirect", "to": "architecture", "count": 8}, {"from": "frustration_redirect", "to": "specification", "count": 7}, {"from": "specification", "to": "frustration_redirect", "count": 7}, {"from": "architecture", "to": "frustration_redirect", "count": 6}, {"from": "quick_fix", "to": "frustration_redirect", "count": 5}, {"from": "exploration", "to": "meta_teaching", "count": 4}, {"from": "course_correction", "to": "meta_teaching", "count": 3}], "sankey": {"nodes": ["A_architecture", "A_course_correction", "A_exploration", "A_frustration_redirect", "A_meta_teaching", "A_quick_fix", "A_specification", "A_validation", "B_architecture", "B_course_correction", "B_exploration", "B_frustration_redirect", "B_meta_teaching", "B_quick_fix", "B_specification", "B_validation"], "links": [{"source": "A_exploration", "target": "B_exploration", "value": 654}, {"source": "A_course_correction", "target": "B_course_correction", "value": 288}, {"source": "A_exploration", "target": "B_course_correction", "value": 231}, {"source": "A_course_correction", "target": "B_exploration", "value": 230}, {"source": "A_validation", "target": "B_validation", "value": 187}, {"source": "A_specification", "target": "B_specification", "value": 185}, {"source": "A_validation", "target": "B_exploration", "value": 173}, {"source": "A_exploration", "target": "B_specification", "value": 156}, {"source": "A_course_correction", "target": "B_specification", "value": 152}, {"source": "A_specification", "target": "B_course_correction", "value": 152}, {"source": "A_exploration", "target": "B_validation", "value": 149}, {"source": "A_specification", "target": "B_exploration", "value": 148}, {"source": "A_validation", "target": "B_course_correction", "value": 139}, {"source": "A_course_correction", "target": "B_validation", "value": 108}, {"source": "A_specification", "target": "B_validation", "value": 99}, {"source": "A_architecture", "target": "B_architecture", "value": 85}, {"source": "A_exploration", "target": "B_architecture", "value": 83}, {"source": "A_quick_fix", "target": "B_exploration", "value": 81}, {"source": "A_architecture", "target": "B_course_correction", "value": 79}, {"source": "A_exploration", "target": "B_quick_fix", "value": 74}, {"source": "A_architecture", "target": "B_exploration", "value": 70}, {"source": "A_course_correction", "target": "B_quick_fix", "value": 69}, {"source": "A_validation", "target": "B_specification", "value": 68}, {"source": "A_architecture", "target": "B_specification", "value": 68}, {"source": "A_architecture", "target": "B_validation", "value": 65}, {"source": "A_course_correction", "target": "B_architecture", "value": 64}, {"source": "A_specification", "target": "B_quick_fix", "value": 55}, {"source": "A_specification", "target": "B_architecture", "value": 52}, {"source": "A_quick_fix", "target": "B_course_correction", "value": 52}, {"source": "A_quick_fix", "target": "B_quick_fix", "value": 50}, {"source": "A_quick_fix", "target": "B_validation", "value": 47}, {"source": "A_validation", "target": "B_architecture", "value": 44}, {"source": "A_quick_fix", "target": "B_specification", "value": 41}, {"source": "A_validation", "target": "B_quick_fix", "value": 38}, {"source": "A_frustration_redirect", "target": "B_exploration", "value": 29}, {"source": "A_exploration", "target": "B_frustration_redirect", "value": 26}, {"source": "A_course_correction", "target": "B_frustration_redirect", "value": 21}, {"source": "A_frustration_redirect", "target": "B_course_correction", "value": 20}, {"source": "A_quick_fix", "target": "B_architecture", "value": 20}, {"source": "A_architecture", "target": "B_quick_fix", "value": 18}, {"source": "A_frustration_redirect", "target": "B_frustration_redirect", "value": 17}, {"source": "A_frustration_redirect", "target": "B_validation", "value": 16}, {"source": "A_validation", "target": "B_frustration_redirect", "value": 13}, {"source": "A_frustration_redirect", "target": "B_architecture", "value": 8}, {"source": "A_frustration_redirect", "target": "B_specification", "value": 7}, {"source": "A_specification", "target": "B_frustration_redirect", "value": 7}, {"source": "A_architecture", "target": "B_frustration_redirect", "value": 6}, {"source": "A_quick_fix", "target": "B_frustration_redirect", "value": 5}, {"source": "A_exploration", "target": "B_meta_teaching", "value": 4}, {"source": "A_course_correction", "target": "B_meta_teaching", "value": 3}, {"source": "A_meta_teaching", "target": "B_specification", "value": 3}, {"source": "A_meta_teaching", "target": "B_course_correction", "value": 2}, {"source": "A_validation", "target": "B_meta_teaching", "value": 2}, {"source": "A_meta_teaching", "target": "B_validation", "value": 2}, {"source": "A_meta_teaching", "target": "B_exploration", "value": 2}, {"source": "A_frustration_redirect", "target": "B_quick_fix", "value": 2}, {"source": "A_architecture", "target": "B_meta_teaching", "value": 2}]}, "sessions_with_labels": 475}, "profile": {"archetype": {"primary": "The Debugger", "primary_reason": "Heavy fix/edit pattern: 5,956 replace_in_file + 4,821 read_file calls, 19,248 total tool calls, and frequent error-focused prompts/crashouts.", "secondary": ["The Night Owl", "The Solo Marathoner"], "secondary_reasons": ["Peak activity at 22:00 with 50 sessions at 23:00 in hour histogram.", "2,882.45 total active hours across 605 sessions shows sustained long-haul building."]}, "growth_edges": [{"title": "Increase deliberate planning before acting", "evidence": "Only 34.0% plan rate (23 plan_only, 183 plan_and_act) vs 303 act_only sessions.", "experiment": "For the next 10 sessions, start with a 5-bullet plan in plan mode before any edits. Track rework (extra replace_in_file calls) vs your last 10 act_only sessions."}, {"title": "Reduce micro-edits with batched changes", "evidence": "5,956 replace_in_file calls vs 2,217 write_to_file calls, indicating heavy small patching.", "experiment": "Pick one active repo and for 2 weeks batch related edits into a single write_to_file per file instead of multiple replace_in_file calls. Compare total tool calls per session."}, {"title": "Stabilize late-night debugging sessions", "evidence": "Peak hour is 22:00 with 50 sessions; p99 duration is 173,729,676 ms (~48h), max ~652h.", "experiment": "For the next 2 weeks, avoid starting new debugging tasks after 21:00. Log session duration for earlier starts and compare p90 duration to current 21,551,336 ms baseline."}, {"title": "Tighten prompt specs to reduce back-and-forth", "evidence": "User messages p90 is 21 and max 124 per session; long_prompts_count is 324.", "experiment": "Before sending a prompt, add a structured block: Goal / Constraints / Files / Expected Output. Do this for 15 sessions and track if user_msgs per session drops below 21."}, {"title": "Consolidate repo focus to cut context switching", "evidence": "24 unique repos; top repo has 82 sessions, sharp drop-off after top few.", "experiment": "For 2 weeks, limit work to top 2 active repos only. Measure average session duration and tool calls vs prior mixed-repo sessions."}], "insights_summary": {"count": 604, "intent": {"feature": 247, "bugfix": 151, "debug": 54, "config": 42, "explore": 36, "refactor": 30, "docs": 16, "question": 15, "other": 11, "optimize": 1, "deploy": 1}, "rework": {"none": 468, "minor": 129, "major": 7}, "outcome": {"unclear": 354, "partial": 143, "shipped": 107}, "agentic_mean": 3.96, "agentic_n": 604, "crashout_count": 0, "crashout_examples": [], "top_topics": [{"topic": "react", "count": 220}, {"topic": "typescript", "count": 184}, {"topic": "nextjs", "count": 175}, {"topic": "convex", "count": 77}, {"topic": "nodejs", "count": 59}, {"topic": "python", "count": 47}, {"topic": "electron", "count": 41}, {"topic": "javascript", "count": 34}, {"topic": "frontend", "count": 33}, {"topic": "azure-openai", "count": 33}, {"topic": "docker", "count": 31}, {"topic": "azure", "count": 28}, {"topic": "schema", "count": 25}, {"topic": "pdf", "count": 24}, {"topic": "documentation", "count": 23}, {"topic": "markdown", "count": 20}, {"topic": "auth", "count": 20}, {"topic": "ui", "count": 18}, {"topic": "prompt-engineering", "count": 18}, {"topic": "database", "count": 18}], "intent_examples": {"feature": [], "bugfix": [], "debug": [], "refactor": [], "other": [], "question": [], "docs": [], "config": [], "explore": [], "optimize": [], "deploy": []}}, "critic_passes": 2, "critic_issues": [{"location": "secondary_reason", "claim": "Peak activity at 22:00 with 50 sessions at 23:00 in hour histogram.", "fix": "Peak activity at 22:00 with 50 sessions in the hour histogram."}]}, "coaching": {"coaching": {"cognitive_skills": [{"title": "Shift from negation to positive-spec framing", "observation": "anti_instruction: 7.2% of labeled messages (354 total); first-message anti_instruction_pct: 9.1%", "why_this_matters": "Frequent \"don’t do X\" framing increases repair loops and ambiguity for the agent, raising cognitive load and rework.", "experiment": "For 2 weeks, rewrite every \"don’t/stop/remove\" request into a 3-line Positive Spec: (1) Desired outcome, (2) Explicit inclusions, (3) Explicit exclusions. Track anti_instruction rate weekly; stop if it drops below 5% of labeled messages.", "evidence_refs": [], "tags": ["decision_frame", "cognitive_skills"]}, {"title": "Add a validation gate before new directives", "observation": "validation_seeking: 0.0% of labeled messages", "why_this_matters": "Without explicit validation checks, you may stack new instructions on unverified states, increasing follow-up corrections.", "experiment": "For 2 weeks, before issuing a new change, ask 1 verification question or request a brief state summary. Log instances; target ≥10% of labeled messages as validation_seeking. Stop if ≥10% sustained for 7 days.", "evidence_refs": [], "tags": ["verification", "cognitive_skills"]}, {"title": "Reduce caps spikes with a cooldown rule", "observation": "caps_runs_per_100_msgs peaked at 1132.2 in 2025-08; overall 205.7 per 100 msgs", "why_this_matters": "High caps density correlates with urgency/friction, which can degrade instruction clarity and agent alignment.", "experiment": "For 14 days, apply a 60-second pause before sending messages containing ALL CAPS. Track caps_runs_per_100_msgs weekly; aim for <100 per 100 msgs. Stop if two consecutive weeks stay under 100.", "evidence_refs": [], "tags": ["emotional_regulation", "cognitive_skills"]}, {"title": "Stabilize specificity after first turn", "observation": "concrete_steps_pct drops from 8.9% (first) to 3.8% (f3)", "why_this_matters": "Specificity decay after initial turn suggests drift; fewer concrete steps mid-thread can cause rework and corrections.", "experiment": "For 2 weeks, include a numbered 3–5 step plan in every 2nd+ follow-up until task closure. Measure concrete_steps_pct at f2–f3; target ≥7%. Stop if ≥7% for 2 consecutive weeks.", "evidence_refs": [], "tags": ["specificity", "cognitive_skills"]}, {"title": "Interrupt repair: replace leading 'No/Actually'", "observation": "interrupt_lead_words: 'no' 126, 'actually' 78, 'dont' 27; frustration_redirect: 107 total (~2.2% of 4950)", "why_this_matters": "Frequent corrective openers signal reactive loops; reframing to state-diff reduces friction and speeds convergence.", "experiment": "For 2 weeks, replace 'No/Actually' with a 2-line diff: (Expected) vs (Observed) + evidence. Track counts of those lead words; aim for 50% reduction from baseline (126/78/27). Stop if achieved.", "evidence_refs": [], "tags": ["course_correction", "cognitive_skills"]}], "prompt_craft": [{"title": "Replace hedged openings with imperatives", "observation": "\"can_you\" is your top opening (550 msgs) and \"would_you\" appears 4 times; top_5 openings account for 40.9% of labeled starts.", "why_this_matters": "Hedged openings slow directive clarity in fast debug loops. Direct imperatives reduce ambiguity and shorten back-and-forth.", "experiment": "For 2 weeks, rewrite the first line to start with a verb (e.g., \"Fix…\", \"Refactor…\", \"Explain…\") in ≥70% of new threads. Stop if followups per task drop by 10% or clarity feels worse.", "evidence_refs": [], "tags": ["opening_verbs", "prompt_craft"]}, {"title": "Cap ALL-CAPS bursts to signal priority only", "observation": "You average 205.7 caps runs per 100 msgs (10,181 total); Aug 2025 hit 1132.2 per 100 msgs.", "why_this_matters": "Frequent caps dilute urgency and can blur which constraints are truly critical.", "experiment": "For 14 days, limit caps to ≤50 runs per 100 msgs and only for 1-line constraints. Track caps_runs_per_100_msgs weekly; stop if no drop after 2 weeks.", "evidence_refs": [], "tags": ["emphasis", "prompt_craft"]}, {"title": "Add code blocks to ground debug requests", "observation": "Inline code use is 4.3% (0.11 backticks/msg overall).", "why_this_matters": "Low code grounding increases interpretation risk in debugging-heavy workflows.", "experiment": "For 2 weeks, include a fenced code block or exact error text in ≥60% of bug reports. Measure backtick_uses_per_msg; target ≥0.25. Stop if resolution time doesn’t improve.", "evidence_refs": [], "tags": ["code_grounding", "prompt_craft"]}, {"title": "30-second typo sweep before send", "observation": "Typos are 9.0 per 100 msgs (446 total); peaked at 18.2 per 100 msgs in 2026-06.", "why_this_matters": "High typo rates can cause misreads in constraints (e.g., dont/wont/cant variants total 439).", "experiment": "Before sending, re-read once and fix contractions. For 2 weeks, aim for ≤6 typos per 100 msgs. Stop if metric doesn’t fall by at least 25%.", "evidence_refs": [], "tags": ["typos", "prompt_craft"]}, {"title": "Front-load concrete steps in first message", "observation": "First-message concrete_steps_pct is 8.9%, but drops to 3.8% by f3; anti_instruction stays ~6–9%.", "why_this_matters": "Specific steps early reduce corrective followups and \"anti-instruction\" reversals later.", "experiment": "For 2 weeks, include a numbered 3–5 step plan in the first message of new tasks. Target ≥12% concrete_steps in first messages. Stop if followups don’t decrease.", "evidence_refs": [], "tags": ["structure", "prompt_craft"]}], "time_pattern": [{"title": "Add a 21:30 shutdown before 22:00 spike", "observation": "Your peak hour is 22:00 (50 sessions), with 21:00 close behind (49). Redirect rate is 6.9% (41 redirects).", "why_this_matters": "Late-evening spikes often correlate with lower-quality decisions and more backtracking, which may contribute to redirects and rework.", "experiment": "For 2 weeks, set a hard stop at 21:30 (no new sessions after). Track sessions started after 21:30 and redirect_rate_pct. Stop if after-hours sessions drop by 80% and redirects do not increase.", "evidence_refs": [], "tags": ["time_boundary", "time_pattern"]}, {"title": "Move heavy planning to Monday morning", "observation": "Monday is your peak day (128 sessions), far above Sunday (31). Plan_rate is 34.0% across sessions.", "why_this_matters": "Since Monday already has the most activity, front-loading structured planning earlier in the day can prevent late-night execution spikes.", "experiment": "For 2 weeks, schedule a fixed 90-min planning block Monday 9–11am. No major feature work before it. Measure Monday 21–23h sessions; stop if they drop by 30% vs prior baseline.", "evidence_refs": [], "tags": ["weekly_rhythm", "time_pattern"]}, {"title": "Cap to 3 deep sessions per day", "observation": "Total active time is 2882.45 hours over 605 sessions (~4.8h/session avg), with p90 duration 21,551,336 ms (~6h).", "why_this_matters": "High per-session duration plus high volume suggests cognitive fatigue, especially when multiple long sessions stack in one day.", "experiment": "For 2 weeks, allow max 3 sessions >2h per day. Log daily count of >2h sessions. Stop if average daily active hours fall by 15% without reducing total weekly output.", "evidence_refs": [], "tags": ["load_management", "time_pattern"]}, {"title": "Shift execution earlier in the day", "observation": "Evening hours 20–23 sum to 175 sessions (46+49+50+29), higher than 8–11 which sum to 114 (41+37+27+9).", "why_this_matters": "Execution-heavy work clustered at night can reduce recovery time and increase next-day carryover tasks.", "experiment": "For 2 weeks, start one execution session before 10:00 daily. Track 20–23h sessions; stop if evening sessions decrease by 25% while total weekly sessions stay within ±10%.", "evidence_refs": [], "tags": ["energy_alignment", "time_pattern"]}, {"title": "Increase plan-before-act on peak days", "observation": "Act-only sessions are 303 vs 23 plan-only; overall plan rate is 34.0%. Monday has 128 sessions (highest).", "why_this_matters": "High act-only volume on your busiest day can amplify rework and long late sessions.", "experiment": "For 2 weeks, require a written plan (plan_mode_respond) before any Monday session over 1h. Measure Monday act-only share; stop if it drops by 20% from baseline.", "evidence_refs": [], "tags": ["planning_discipline", "time_pattern"]}], "trust_calibration": [{"title": "Let one tool call finish before intervening", "observation": "p50 tool_depth_at_followup is 1 and p90 is 1, meaning you often follow up after just one tool call.", "why_this_matters": "Following up at depth 1 can cut off the agent before it completes retrieval or analysis, increasing rework and frustration.", "experiment": "For 2 weeks, in tasks involving files/tools, wait until at least 2 tool calls complete (or the assistant says \"analysis complete\") before replying. Track 20 such sessions; goal: raise your median depth at followup from 1 to >=2.", "evidence_refs": [], "tags": ["interrupt_control", "tool_patience", "trust_calibration"]}, {"title": "Add a 3-second pause before 'no/actually'", "observation": "\"no\" (126) and \"actually\" (78) are top interrupt_lead_words, totaling 204 early-turn reversals.", "why_this_matters": "Frequent immediate corrections can prevent the agent from finishing its reasoning path and increase back-and-forth cycles.", "experiment": "For 14 days, whenever starting with \"no\" or \"actually\", pause 3 seconds and add one line: \"stop because: <reason>\". Reduce such lead words by 30% (from 204 baseline across history to a 2-week rate 30% lower than your recent average).", "evidence_refs": [], "tags": ["interrupt_control", "friction_reduction", "trust_calibration"]}, {"title": "Replace very short followups with checkpoint", "observation": "very_short_followup_pct is 5.0%, and examples show 4–10 word messages after long assistant outputs.", "why_this_matters": "Very short followups often signal premature interruption or frustration, which can derail the agent’s current hypothesis.", "experiment": "For 2 weeks, when tempted to send <10-word replies, instead ask: \"What’s your current hypothesis and next step?\" Track at least 30 followups; aim to cut very short followups from 5.0% to <=3%.", "evidence_refs": [], "tags": ["interrupt_control", "clarity", "trust_calibration"]}, {"title": "Use hypothesis check instead of giving up", "observation": "give_up_sessions_count is 33 out of 4501 followups (~0.7%).", "why_this_matters": "Even a small give-up rate compounds across 605 sessions, leading to abandoned partial solutions and restart costs.", "experiment": "For the next 2 weeks, in any stuck session, ask one checkpoint question before exiting: \"What do you think is the root cause now?\" Target: 0 abandoned sessions (reduce from 33 historical to zero during the trial).", "evidence_refs": [], "tags": ["persistence", "trust_building", "trust_calibration"]}], "growth_delta": [], "growth_deltas_raw": {"window_days_recent": 60, "recent_month_count": 3, "prior_month_count": 15, "avg_words_per_message": {"recent_avg": 182.99, "prior_avg": 240.11, "delta": -57.12}, "self_correction_rate_pct": {"recent_avg": 10.5, "prior_avg": 4.45, "delta": 6.05}, "caps_runs_per_100_msgs": {"recent_avg": 202.57, "prior_avg": 187.2, "delta": 15.37}, "bangs_per_msg": {"recent_avg": 0.0, "prior_avg": 0.22, "delta": -0.22}, "typos_per_100_msgs": {"recent_avg": 13.73, "prior_avg": 12.05, "delta": 1.68}, "bold_per_msg": {"recent_avg": 0.32, "prior_avg": 0.12, "delta": 0.2}, "backtick_per_msg": {"recent_avg": 0.12, "prior_avg": 0.11, "delta": 0.01}}}, "growth_deltas": {"window_days_recent": 60, "recent_month_count": 3, "prior_month_count": 15, "avg_words_per_message": {"recent_avg": 182.99, "prior_avg": 240.11, "delta": -57.12}, "self_correction_rate_pct": {"recent_avg": 10.5, "prior_avg": 4.45, "delta": 6.05}, "caps_runs_per_100_msgs": {"recent_avg": 202.57, "prior_avg": 187.2, "delta": 15.37}, "bangs_per_msg": {"recent_avg": 0.0, "prior_avg": 0.22, "delta": -0.22}, "typos_per_100_msgs": {"recent_avg": 13.73, "prior_avg": 12.05, "delta": 1.68}, "bold_per_msg": {"recent_avg": 0.32, "prior_avg": 0.12, "delta": 0.2}, "backtick_per_msg": {"recent_avg": 0.12, "prior_avg": 0.11, "delta": 0.01}}, "critic_passes": 2, "critic_issues": [{"category": "cognitive_skills", "title": "Shift from negation to positive-spec framing", "problem": "Observation cites anti_instruction percentages not present in inputs.", "fix": "Strike numeric claims; rewrite observation to use available metrics or remove percentages."}, {"category": "cognitive_skills", "title": "Add a validation gate before new directives", "problem": "Observation cites validation_seeking 0.0% not present in inputs.", "fix": "Remove the percentage and reference only available metrics, or strike the observation."}, {"category": "cognitive_skills", "title": "Reduce caps spikes with a cooldown rule", "problem": "Caps metrics (runs per 100 msgs, monthly peak) not present in inputs.", "fix": "Remove numeric caps claims; if unavailable, strike suggestion."}, {"category": "cognitive_skills", "title": "Stabilize specificity after first turn", "problem": "Concrete_steps_pct figures not present in inputs.", "fix": "Remove cited percentages or strike suggestion."}, {"category": "cognitive_skills", "title": "Interrupt repair: replace leading 'No/Actually'", "problem": "Interrupt and frustration counts not present in inputs; total message count (4950) mismatches 4974.", "fix": "Remove unsupported counts and align totals to 4974 if used."}, {"category": "prompt_craft", "title": "Replace hedged openings with imperatives", "problem": "Opening label counts (e.g., 550) and 40.9% not present in inputs.", "fix": "Remove numeric claims or strike suggestion."}, {"category": "prompt_craft", "title": "Cap ALL-CAPS bursts to signal priority only", "problem": "Caps metrics (205.7, 10,181, 1132.2) not present in inputs.", "fix": "Remove unsupported numbers or strike suggestion."}, {"category": "prompt_craft", "title": "Add code blocks to ground debug requests", "problem": "Inline code percentages/backtick rates not present; stop condition 'resolution time doesn’t improve' lacks defined metric.", "fix": "Remove unsupported percentages and define a measurable metric (e.g., avg followups per bug over 2 weeks)."}, {"category": "prompt_craft", "title": "30-second typo sweep before send", "problem": "Typo rates and monthly peak not present in inputs.", "fix": "Remove numeric claims or strike suggestion."}, {"category": "prompt_craft", "title": "Front-load concrete steps in first message", "problem": "Concrete_steps_pct figures and anti_instruction rates not present in inputs.", "fix": "Remove unsupported percentages or strike suggestion."}, {"category": "time_pattern", "title": "Cap ALL-CAPS bursts to signal priority only", "problem": "Duplicate suggestion across categories (also in cognitive_skills).", "fix": "Keep in one category only or merge into a single consolidated suggestion."}, {"category": "time_pattern", "title": "Cap to 3 deep sessions per day", "problem": "Observation computes ~4.8h/session average not explicitly present in inputs.", "fix": "Remove derived average or explicitly compute without rounding (2882.45/605 ≈ 4.77h) and state calculation."}]}};
+
+  // ============ Helpers ============
+  function getCtx(id) { const el = document.getElementById(id); return el ? el.getContext("2d") : null; }
+  function setText(id, v) { const el = document.getElementById(id); if (el && v != null) el.textContent = v; }
+  function makeBar(id, labels, data, label, color) {
+    const ctx = getCtx(id); if (!ctx || typeof Chart === "undefined") return;
+    return new Chart(ctx, {
+      type: "bar",
+      data: { labels, datasets: [{ label, data, backgroundColor: color || "#7c9cf2" }] },
+      options: {
+        responsive: true, plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: "#8a93a6" }, grid: { color: "#2a2f3d" } },
+          y: { ticks: { color: "#8a93a6" }, grid: { color: "#2a2f3d" }, beginAtZero: true }
+        }
+      }
+    });
+  }
+  function makeHBar(id, labels, data, label, color) {
+    const ctx = getCtx(id); if (!ctx || typeof Chart === "undefined") return;
+    return new Chart(ctx, {
+      type: "bar",
+      data: { labels, datasets: [{ label, data, backgroundColor: color || "#f29c7c" }] },
+      options: {
+        indexAxis: "y", responsive: true, plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: "#8a93a6" }, grid: { color: "#2a2f3d" }, beginAtZero: true },
+          y: { ticks: { color: "#8a93a6" }, grid: { color: "#2a2f3d" } }
+        }
+      }
+    });
+  }
+  function makeDoughnut(id, labels, data, palette) {
+    const ctx = getCtx(id); if (!ctx || typeof Chart === "undefined") return;
+    return new Chart(ctx, {
+      type: "doughnut",
+      data: { labels, datasets: [{ data, backgroundColor: palette || [
+        "#7c9cf2","#f29c7c","#7cf2a0","#f2d97c","#f27c7c","#c47cf2","#7cd5f2","#aeb6c4"
+      ]}] },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: "right", labels: { color: "#d8e0ee", boxWidth: 12 } }
+        }
+      }
+    });
+  }
+  function makeMultiLine(id, labels, datasets) {
+    const ctx = getCtx(id); if (!ctx || typeof Chart === "undefined") return;
+    return new Chart(ctx, {
+      type: "line",
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: "#d8e0ee" } } },
+        scales: {
+          x: { ticks: { color: "#8a93a6" }, grid: { color: "#2a2f3d" } },
+          y: { ticks: { color: "#8a93a6" }, grid: { color: "#2a2f3d" }, beginAtZero: true }
+        },
+        elements: { point: { radius: 2 } }
+      }
+    });
+  }
+
+  // ============ Hero ============
+  (function hero() {
+    const m = DATA.metrics || {}, prof = DATA.profile || {}, cog = DATA.cognition || {};
+    setText("total_sessions", m.total_sessions ?? "?");
+    setText("total_msgs", cog.messages ?? (DATA.mode_aggregates?.count ?? "?"));
+    const dr = m.date_range || {};
+    setText("date_range", (dr.start_iso ?? "?").slice(0,10) + "  -  " + (dr.end_iso ?? "?").slice(0,10));
+    const arch = prof.archetype || {};
+    setText("hero_archetype", arch.primary || "?");
+    setText("hero_archetype_reason", arch.primary_reason || "");
+    setText("hero_model", (m.models || {}).primary_model || "?");
+    setText("hero_plan", (m.models || {}).plan_rate_pct ?? "?");
+    setText("hero_peak_hour", (m.timing || {}).peak_hour_local + ":00");
+    setText("hero_peak_day", (m.timing || {}).peak_day_local || "?");
+    setText("hero_active", ((m.timing || {}).total_active_hours ?? "?") + " h");
+    setText("hero_tools", (m.tools || {}).total_tool_calls ?? "?");
+  })();
+
+  // ============ Timing charts ============
+  (function timing() {
+    const t = (DATA.metrics || {}).timing || {};
+    const hours = Array.from({length: 24}, (_, i) => i + "");
+    makeBar("hourChart", hours, t.hour_histogram_local || [], "sessions");
+    makeBar("dowChart", t.day_of_week_labels || [], t.day_of_week_histogram_local || [], "sessions", "#f29c7c");
+  })();
+
+  // ============ Models & Tools ============
+  (function modelsTools() {
+    const models = (DATA.metrics || {}).models || {};
+    const byModel = models.by_model || {};
+    const mLabels = Object.keys(byModel).slice(0, 8);
+    const mData = mLabels.map(k => byModel[k]);
+    makeDoughnut("modelChart", mLabels, mData);
+
+    const tools = (DATA.metrics || {}).tools || {};
+    const byTool = tools.by_tool || {};
+    const labels = Object.keys(byTool).slice(0, 12);
+    const data = labels.map(k => byTool[k]);
+    makeHBar("toolChart", labels, data, "calls", "#7cf2a0");
+  })();
+
+  // ============ Cognitive modes ============
+  (function modes() {
+    const agg = DATA.mode_aggregates || {};
+    const total = agg.mode_total || {};
+    makeDoughnut("modeChart", Object.keys(total), Object.values(total));
+
+    const ord = agg.mode_by_ordinal || {};
+    const ordKeys = Object.keys(ord).sort();
+    const modeSet = new Set();
+    ordKeys.forEach(k => Object.keys(ord[k] || {}).forEach(m => modeSet.add(m)));
+    const modes = Array.from(modeSet);
+    const palette = ["#7c9cf2","#f29c7c","#7cf2a0","#f2d97c","#f27c7c","#c47cf2","#7cd5f2","#aeb6c4"];
+    const datasets = modes.map((mode, i) => ({
+      label: mode,
+      data: ordKeys.map(k => (ord[k] || {})[mode] || 0),
+      backgroundColor: palette[i % palette.length],
+    }));
+    const ctx = getCtx("modeOrdChart");
+    if (ctx && typeof Chart !== "undefined") {
+      new Chart(ctx, {
+        type: "bar",
+        data: { labels: ordKeys, datasets },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: "#d8e0ee" } } },
+          scales: {
+            x: { stacked: true, ticks: { color: "#8a93a6" }, grid: { color: "#2a2f3d" } },
+            y: { stacked: true, ticks: { color: "#8a93a6" }, grid: { color: "#2a2f3d" } }
+          }
+        }
+      });
+    }
+  })();
+
+  // ============ Sankey ============
+  (function sankey() {
+    const s = (DATA.mode_aggregates || {}).sankey || { nodes: [], links: [] };
+    if (!s.nodes || s.nodes.length === 0 || typeof d3 === "undefined" || typeof d3.sankey === "undefined") return;
+    const container = document.getElementById("sankey");
+    if (!container) return;
+    const width = container.clientWidth || 800;
+    const height = 480;
+    const svg = d3.select(container).append("svg").attr("width", width).attr("height", height);
+
+    const nodeMap = new Map(s.nodes.map((n, i) => [n, i]));
+    const nodes = s.nodes.map(name => ({ name }));
+    const links = s.links.map(l => ({
+      source: nodeMap.get(l.source),
+      target: nodeMap.get(l.target),
+      value: l.value
+    }));
+
+    const sankey = d3.sankey()
+      .nodeWidth(14)
+      .nodePadding(10)
+      .extent([[1, 1], [width - 1, height - 6]]);
+    const graph = sankey({
+      nodes: nodes.map(d => Object.assign({}, d)),
+      links: links.map(d => Object.assign({}, d)),
+    });
+
+    const palette = d3.scaleOrdinal(d3.schemeTableau10);
+
+    svg.append("g").selectAll("rect")
+      .data(graph.nodes).enter().append("rect")
+        .attr("class", "sankey-node")
+        .attr("x", d => d.x0).attr("y", d => d.y0)
+        .attr("height", d => d.y1 - d.y0).attr("width", d => d.x1 - d.x0)
+        .attr("fill", d => palette(d.name.replace(/^[AB]_/,"")));
+
+    svg.append("g").attr("fill", "none").selectAll("path")
+      .data(graph.links).enter().append("path")
+        .attr("class", "sankey-link")
+        .attr("d", d3.sankeyLinkHorizontal())
+        .attr("stroke", d => palette(d.source.name.replace(/^[AB]_/,"")))
+        .attr("stroke-width", d => Math.max(1, d.width));
+
+    svg.append("g").selectAll("text")
+      .data(graph.nodes).enter().append("text")
+        .attr("class", "sankey-label")
+        .attr("x", d => d.x0 < width / 2 ? d.x1 + 6 : d.x0 - 6)
+        .attr("y", d => (d.y1 + d.y0) / 2)
+        .attr("dy", "0.35em")
+        .attr("text-anchor", d => d.x0 < width / 2 ? "start" : "end")
+        .text(d => d.name.replace(/^A_/, "").replace(/^B_/, ""));
+  })();
+
+  // ============ Cognition fingerprint ============
+  (function fingerprint() {
+    const c = DATA.cognition || {};
+    const s = c.style_fingerprint || {};
+    setText("cog_avg_words", s.avg_words_per_message);
+    setText("cog_caps", (s.emphasis || {}).caps_runs_per_100_msgs);
+    setText("cog_bangs", (s.emphasis || {}).bangs_per_msg);
+    setText("cog_sc", (s.self_correction || {}).pct_of_messages + "%");
+    setText("cog_multi", s.multiline_message_pct + "%");
+    setText("cog_code", s.inline_code_use_pct + "%");
+
+    const ops = (s.openings || {}).by_label || {};
+    const opLabels = Object.keys(ops).slice(0, 10);
+    makeHBar("openingsChart", opLabels, opLabels.map(k => ops[k]), "messages", "#7c9cf2");
+
+    const typos = (s.typos || {}).by_label || {};
+    const tLabels = Object.keys(typos).slice(0, 10);
+    makeHBar("typosChart", tLabels, tLabels.map(k => typos[k]), "occurrences", "#f2d97c");
+
+    // Monthly evolution
+    const monthly = s.monthly || [];
+    const months = monthly.map(m => m.month);
+    const datasets = [
+      { label: "avg words / msg", data: monthly.map(m => m.avg_words_per_message), borderColor: "#7c9cf2", backgroundColor: "transparent" },
+      { label: "self-correction %", data: monthly.map(m => m.self_correction_rate_pct), borderColor: "#f29c7c", backgroundColor: "transparent" },
+      { label: "caps runs / 100", data: monthly.map(m => m.caps_runs_per_100_msgs), borderColor: "#f27c7c", backgroundColor: "transparent" },
+      { label: "typos / 100", data: monthly.map(m => m.typos_per_100_msgs), borderColor: "#f2d97c", backgroundColor: "transparent" },
+      { label: "backticks / msg", data: monthly.map(m => m.backtick_per_msg), borderColor: "#7cf2a0", backgroundColor: "transparent" },
+    ];
+    makeMultiLine("monthlyChart", months, datasets);
+  })();
+
+  // ============ Decision frames ============
+  (function frames() {
+    const c = DATA.cognition || {};
+    const f = c.decision_frames || {};
+    const rates = f.rates_pct || {};
+    const labels = Object.keys(rates);
+    makeBar("framesChart", labels, labels.map(k => rates[k]), "%", "#c47cf2");
+
+    const ladder = f.specificity_ladder || [];
+    const ctx = getCtx("ladderChart");
+    if (ctx && typeof Chart !== "undefined") {
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ladder.map(r => r.ordinal),
+          datasets: [
+            { label: "concrete_steps %", data: ladder.map(r => r.concrete_steps_pct), backgroundColor: "#7cf2a0" },
+            { label: "anti_instruction %", data: ladder.map(r => r.anti_instruction_pct), backgroundColor: "#f27c7c" },
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: "#d8e0ee" } } },
+          scales: {
+            x: { ticks: { color: "#8a93a6" }, grid: { color: "#2a2f3d" } },
+            y: { ticks: { color: "#8a93a6" }, grid: { color: "#2a2f3d" }, beginAtZero: true }
+          }
+        }
+      });
+    }
+  })();
+
+  // ============ Trust ============
+  (function trust() {
+    const c = DATA.cognition || {};
+    const t = c.trust_patterns || {};
+    const td = t.tool_depth_at_followup || {};
+    const ac = t.asst_chars_before_followup || {};
+    setText("trust_p50", td.p50);
+    setText("trust_p90", td.p90);
+    setText("trust_chars", ac.mean);
+    setText("trust_short", t.very_short_followup_pct + "%");
+    setText("trust_giveup", t.give_up_sessions_count);
+
+    const leads = t.interrupt_lead_words || {};
+    const lLabels = Object.keys(leads).slice(0, 10);
+    makeHBar("leadChart", lLabels, lLabels.map(k => leads[k]), "messages", "#f27c7c");
+
+    const tbody = document.getElementById("trust_giveup_tbody");
+    if (tbody) {
+      (t.give_up_sessions_examples || []).forEach(e => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td><code>${e.task_id || ""}</code></td>
+                        <td>${(e.last_message || "").replace(/</g,"&lt;")}</td>
+                        <td>${e.tool_calls_since_prev_user ?? ""}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+  })();
+
+  // ============ Repos ============
+  (function repos() {
+    const r = ((DATA.metrics || {}).repos || {}).table || [];
+    const tbody = document.getElementById("repo_tbody");
+    if (!tbody) return;
+    r.slice(0, 20).forEach(row => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${row.name || row.path || ""}</td>
+                      <td>${row.sessions}</td>
+                      <td>${(row.last_seen_iso || "").slice(0,16)}</td>
+                      <td>${row.primary_model || ""}</td>
+                      <td>${row.primary_mode || ""}</td>`;
+      tbody.appendChild(tr);
+    });
+  })();
+  </script>
+</body>
+</html>
